@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -33,7 +34,8 @@ lblSearchForEvent.setFont(new Font("Tahoma", Font.BOLD, 18));
 lblSearchForEvent.setForeground(new Color(0, 0, 139));
 lblSearchForEvent.setBounds(22, 22, 527, 40);
 btnSearch = new JButton("Search");
-btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 16));
+btnSearch.setForeground(Color.WHITE);
+btnSearch.setFont(new Font("Tahoma", Font.BOLD, 14));
 btnSearch.setBackground(new Color(0, 0, 139));
 btnSearch.setBounds(440,98,109,40);
 btnSearch.addActionListener(this);
@@ -45,7 +47,15 @@ frame.setVisible(true);
 frame.setSize(620, 350); 
 } 
 
+public void actionPerformed(ActionEvent ae)
+{
+btnSearch = (JButton)ae.getSource();
+System.out.println("Showing Table Data.......");
+showTableData(); 
+} 
 
+public void showTableData()
+{
 
 frame1 = new JFrame("Database Search Result");
 frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -59,7 +69,6 @@ model.setColumnIdentifiers(columnNames);
 //table = new JTable(model);
 
 table = new JTable();
-table.setBackground(new Color(224, 255, 255));
 table.setModel(model); 
 table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 table.setFillsViewportHeight(true);
@@ -79,10 +88,12 @@ try
 { 
 Class.forName(driverName); 
 Connection con = DriverManager.getConnection(url, userName, password);
-String sql = "SELECT * FROM `events` ";
-Statement stmt = con.createStatement();
-ResultSet rs = stmt.executeQuery(sql);
+String sql = "SELECT * FROM `events` WHERE e_title LIKE '%"+searchValue+"%'";
 
+PreparedStatement ps = con.prepareStatement(sql);
+ResultSet rs = ps.executeQuery();
+
+int i =0;
 if(rs.next()) {
 	
 	eventTitle = rs.getString("e_title");
@@ -91,21 +102,29 @@ if(rs.next()) {
 	eventStart = rs.getString("e_startdate");
 	eventEnd = rs.getString("e_description");
 	model.addRow(new Object[]{eventTitle, eventPlace, eventDescr, eventStart, eventEnd});
-
-} else {
-	JOptionPane.showMessageDialog(null, "No Record Found","Error", JOptionPane.ERROR_MESSAGE);
-}} catch(Exception ex) {
-	JOptionPane.showMessageDialog(null, ex.getMessage(),"Error", JOptionPane.ERROR_MESSAGE);
-}
-public void actionPerformed(ActionEvent e) {
-	// TODO Auto-generated method stub
 	
+	i++;
+
+} if(i <1) {
+	JOptionPane.showMessageDialog(null, "No Record Found","Error", JOptionPane.ERROR_MESSAGE);
+
+} if(i ==1) {
+	System.out.println(i+" Record Found");
+} else {
+	System.out.println(i+" Records Found");
+	}
+} catch(Exception ex) {
+	JOptionPane.showMessageDialog(null, ex.getMessage(),"Error", JOptionPane.ERROR_MESSAGE);
 }
 
 frame1.getContentPane().add(scroll);
 frame1.setVisible(true);
-frame1.setSize(598,301);
+frame1.setSize(500,300);
+}
 
+public static void main(String args[]) {
 
-
+	ViewEvents sr = new ViewEvents();
+	sr.createUI(); 
+	}
 }
